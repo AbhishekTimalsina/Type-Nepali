@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Type Nepali",
+  "version": "1.0.0",
+  "description": "Type in Nepali.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": ["tabs", "storage"],
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
