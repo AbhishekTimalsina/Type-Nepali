@@ -23,14 +23,25 @@ function TOGGLE_TRANSLATE_VALUE(boolean) {
   chrome.storage.sync.set({
     translateText: boolean,
   });
-  chrome.tabs.query(
-    {
-      active: true,
-    },
-    function (tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        translate: boolean,
-      });
-    }
-  );
+  chrome.tabs.query({}, function (tabs) {
+    tabs.forEach(async (tab) => {
+      // if the tab is a chrome url return
+      const pattern = /^chrome\:\/\/.*/;
+      if (pattern.test(tab.url)) return;
+      console.log(tab)
+
+      // if user clicks "off"(remove the translate handler), send message to every script to remove the translate handler
+      // and if user clicks "on", execute new script on every open tabs
+      if (!boolean) {
+        await chrome.tabs.sendMessage(tab.id, {
+          translate: boolean,
+        });
+      } else {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ["scripts/content.js"],
+        });
+      }
+    });
+  });
 }

@@ -6,9 +6,14 @@ function TRANSLATION_HANDLER(e) {
     let { value } = e.target;
     let splittedText = value.split(" ");
     let recentText = splittedText[splittedText.length - 1];
+    console.log(recentText);
     if (!recentText) return;
+    if (recentText === "," || recentText === "|") return;
     let translatedTextArray = [...splittedText];
     translatedTextArray.pop();
+
+    console.log(splittedText);
+    console.log(translatedTextArray);
 
     let fetchUrl = `https://www.google.com/inputtools/request?text=${recentText}&ime=transliteration_en_ne&num=1`;
 
