@@ -18,5 +18,5 @@ Type Nepali is a chrome extension that gives your browser power to type in Nepal
 Download or clone this repo on your machine
 
 ```bash
-npm clone https://github.com/AbhishekTimalsina/Type-Nepali.git
+git clone https://github.com/AbhishekTimalsina/Type-Nepali.git
 ```
