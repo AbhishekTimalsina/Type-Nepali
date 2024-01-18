@@ -1,0 +1,37 @@
+body {
+  background-color: #f0f0f2;
+  width: 250px;
+  margin: 12px;
+  font-family: "Arial", sans-serif;
+  text-align: center;
+}
+
+h1 {
+  color: #2d75db;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #555;
+  margin-bottom: 20px;
+}
+
+button {
+  width: 100%;
+  background-color: #2d75db;
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 10px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button.off {
+  background-color: #39639c;
+}
+button:hover {
+  border: 1px solid white;
+  background-color: #002a66;
+}
