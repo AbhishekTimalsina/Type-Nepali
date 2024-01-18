@@ -22,7 +22,7 @@ function TRANSLATION_HANDLER(e) {
         let translatedWord = res[1][0][1][0];
 
         // Replace "." with "|"
-        translatedWord = translatedWord.endsWith('.') ? translatedWord.replace('.', ' |') : translatedWord;
+        translatedWord = translatedWord.endsWith('.') ? translatedWord.replace('.', '।') : translatedWord;
 
         words[words.length - 1] = translatedWord;
         lastLine = words.join(" ");
