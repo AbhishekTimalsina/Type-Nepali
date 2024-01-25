@@ -36,51 +36,23 @@ function TRANSLATION_HANDLER(e) {
   }
 }
 
-function TRAVERSE_CHILD(node) {
-  if (node.children.length === 0) {
-    return node;
-  } else {
-    return TRAVERSE_CHILD(node.children[0]);
-  }
-}
-
 async function HANDLE_TRANSLATION_FOR_OTHERS(e) {
   let targetDiv = e.target;
-  let textfield = TRAVERSE_CHILD(targetDiv);
-
-  let range = new Range();
-  console.log(textfield.textContent.length);
-  range.setStart(textfield.firstChild, textfield.textContent.length);
-  range.setEnd(textfield.firstChild, textfield.textContent.length);
-  console.log(textfield.textContent);
-  console.log(range);
+  let textfield = FIND_TEXT_FIELD(targetDiv);
 
   if (e.keyCode === 32) {
-    if (!textfield) {
-      console.log("no detected");
-      return;
-    }
+    if (!textfield) return;
+
     let textFieldValue = textfield.textContent;
-    // console.log(textFieldValue);
     let lastTextFieldRange = textFieldValue.split(" ");
     let lastValue = lastTextFieldRange[lastTextFieldRange.length - 1];
 
-    let index = textFieldValue.indexOf(lastValue);
-
-    range.setStart(textfield.firstChild, index);
-    range.setEnd(textfield.firstChild, textFieldValue.length);
-    // console.log(range);
-
     let translatedWord = await TRANSLATION_API_CALL(lastValue);
-    range.deleteContents();
-    // console.log(translatedWord);
-
-    let textNode = document.createTextNode(translatedWord);
-    range.insertNode(textNode);
-
-    range.setStart(textfield.firstChild, textfield.firstChild.length);
-    range.setEnd(textfield.firstChild, textfield.firstChild.length);
-    // range.collapse(false);
+    console.log(translatedWord);
+    lastTextFieldRange[lastTextFieldRange.length - 1] = translatedWord;
+    console.log(lastTextFieldRange);
+    textfield.firstChild.data = lastTextFieldRange.join(" ") + " ";
+    MOVE_CARET_TO_END(textfield);
   }
 }
 
@@ -96,6 +68,25 @@ async function TRANSLATION_API_CALL(wordToTranslate) {
     : translatedWord;
 
   return translatedWord;
+}
+
+function FIND_TEXT_FIELD(node) {
+  if (node.children.length === 0) {
+    return node;
+  } else {
+    return TRAVERSE_CHILD(node.children[0]);
+  }
+}
+
+function MOVE_CARET_TO_END(elem) {
+  if (!elem.firstChild) return;
+  let selection = window.getSelection();
+  let range = new Range();
+
+  range.setStart(elem.firstChild, elem.firstChild.length);
+  range.collapse();
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 
 chrome.runtime.onMessage.addListener(function (request) {
