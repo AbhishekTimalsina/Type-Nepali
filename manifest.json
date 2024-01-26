@@ -9,10 +9,13 @@
     "48": "img/icons/icon-48.png",
     "128": "img/icons/icon-128.png"
   },
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
   "action": {
     "default_popup": "popup.html"
   },
-  "permissions": ["tabs", "storage", "activeTab"],
+  "permissions": ["tabs", "storage"],
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
@@ -20,6 +23,12 @@
       "run_at": "document_start"
     }
   ],
+  "commands": {
+    "inject-script": {
+      "suggested_key": "Ctrl+Shift+Y",
+      "description": "Inject a script on the page"
+    }
+  },
 
   "host_permissions": ["<all_urls>"]
 }

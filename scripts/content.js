@@ -1,8 +1,11 @@
-function TRANSLATION_HANDLER(e) {
-  HANDLE_TRANSLATION_FOR_OTHERS(e);
+async function TRANSLATION_HANDLER(e) {
   if (e.keyCode === 32) {
-    if (!(e.target.localName === "input" || e.target.localName === "textarea"))
+    if (
+      !(e.target.localName === "input" || e.target.localName === "textarea")
+    ) {
+      HANDLE_TRANSLATION_FOR_OTHER_FIELDS(e);
       return;
+    }
 
     let { value } = e.target;
     let lines = value.split("\n");
@@ -14,29 +17,17 @@ function TRANSLATION_HANDLER(e) {
     if (!recentWord || recentWord === "," || recentWord === "|") {
       return;
     }
+    let translatedWord = await TRANSLATION_API_CALL(recentWord);
 
-    let fetchUrl = `https://www.google.com/inputtools/request?text=${recentWord}&ime=transliteration_en_ne&num=1`;
+    words[words.length - 1] = translatedWord;
+    lastLine = words.join(" ");
 
-    fetch(fetchUrl)
-      .then((res) => res.json())
-      .then((res) => {
-        let translatedWord = res[1][0][1][0];
-
-        // Replace "." with "|"
-        translatedWord = translatedWord.endsWith(".")
-          ? translatedWord.replace(".", "।")
-          : translatedWord;
-
-        words[words.length - 1] = translatedWord;
-        lastLine = words.join(" ");
-
-        lines[lines.length - 1] = lastLine;
-        e.target.value = lines.join("\n") + " ";
-      });
+    lines[lines.length - 1] = lastLine;
+    e.target.value = lines.join("\n") + " ";
   }
 }
 
-async function HANDLE_TRANSLATION_FOR_OTHERS(e) {
+async function HANDLE_TRANSLATION_FOR_OTHER_FIELDS(e) {
   let targetDiv = e.target;
   let textfield = FIND_TEXT_FIELD(targetDiv);
 
@@ -44,18 +35,29 @@ async function HANDLE_TRANSLATION_FOR_OTHERS(e) {
     if (!textfield) return;
 
     let textFieldValue = textfield.textContent;
-    let lastTextFieldRange = textFieldValue.split(" ");
-    let lastValue = lastTextFieldRange[lastTextFieldRange.length - 1];
 
-    let translatedWord = await TRANSLATION_API_CALL(lastValue);
-    console.log(translatedWord);
-    lastTextFieldRange[lastTextFieldRange.length - 1] = translatedWord;
-    console.log(lastTextFieldRange);
-    textfield.firstChild.data = lastTextFieldRange.join(" ") + " ";
+    let lines = textFieldValue.split("\n");
+    let lastLine = lines[lines.length - 1];
+    let words = lastLine.split(" ");
+    let recentWord = words[words.length - 1];
+
+    if (!recentWord || recentWord === "," || recentWord === "|") {
+      return;
+    }
+
+    let translatedWord = await TRANSLATION_API_CALL(recentWord);
+
+    words[words.length - 1] = translatedWord;
+    lastLine = words.join(" ");
+
+    lines[lines.length - 1] = lastLine;
+    textfield.firstChild.data = lines.join("\n") + " ";
+
     MOVE_CARET_TO_END(textfield);
   }
 }
 
+// CALL THE API TO TRANSLATE WORD, RETURNS THE TRANSLATED WORD
 async function TRANSLATION_API_CALL(wordToTranslate) {
   let fetchUrl = `https://www.google.com/inputtools/request?text=${wordToTranslate}&ime=transliteration_en_ne&num=1`;
 
@@ -70,14 +72,16 @@ async function TRANSLATION_API_CALL(wordToTranslate) {
   return translatedWord;
 }
 
+// FINDS THE TEXT FIELD THAT IS THE DEEPEST CHILDREN OF THE E.TARGET
 function FIND_TEXT_FIELD(node) {
   if (node.children.length === 0) {
     return node;
   } else {
-    return TRAVERSE_CHILD(node.children[0]);
+    return FIND_TEXT_FIELD(node.children[0]);
   }
 }
 
+// MOVES THE CURSOR POSITION TO END
 function MOVE_CARET_TO_END(elem) {
   if (!elem.firstChild) return;
   let selection = window.getSelection();
@@ -95,6 +99,9 @@ chrome.runtime.onMessage.addListener(function (request) {
   } else {
     window.removeEventListener("keydown", TRANSLATION_HANDLER);
   }
+  chrome.storage.sync.set({
+    translateText: request.translate,
+  });
 });
 
 chrome.storage.sync.get(["translateText"]).then((obj) => {

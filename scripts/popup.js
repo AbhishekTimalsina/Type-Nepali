@@ -1,34 +1,30 @@
 let btn = document.querySelector("button");
+let translateState;
+
 chrome.storage.sync.get(["translateText"]).then((obj) => {
-  btn.textContent = obj.translateText ? "On" : "Off";
-  if (!obj.translateText) {
-    btn.classList.add("off");
-  }
+  translateState = obj.translateText;
+  CHANGE_BUTTON_TEXT(obj.translateText);
 });
 
 btn.addEventListener("click", function () {
   let btnTxtContent = btn.textContent;
   if (btnTxtContent === "On") {
+    // if (translateState) {
     TOGGLE_TRANSLATE_VALUE(false);
-    btn.textContent = "Off";
-    btn.classList.add("off");
+    CHANGE_BUTTON_TEXT(false);
   } else {
     TOGGLE_TRANSLATE_VALUE(true);
-    btn.textContent = "On";
-    btn.classList.remove("off");
+    CHANGE_BUTTON_TEXT(true);
   }
 });
 
 function TOGGLE_TRANSLATE_VALUE(boolean) {
-  chrome.storage.sync.set({
-    translateText: boolean,
-  });
   chrome.tabs.query({}, function (tabs) {
     tabs.forEach(async (tab) => {
+      console.log(tab);
       // if the tab is a chrome url return
       const pattern = /^chrome\:\/\/.*/;
       if (pattern.test(tab.url)) return;
-      console.log(tab);
 
       await chrome.tabs.sendMessage(tab.id, {
         translate: boolean,
@@ -36,3 +32,17 @@ function TOGGLE_TRANSLATE_VALUE(boolean) {
     });
   });
 }
+
+function CHANGE_BUTTON_TEXT(boolean) {
+  if (boolean) {
+    btn.textContent = "On";
+    btn.classList.remove("off");
+  } else {
+    btn.textContent = "Off";
+    btn.classList.add("off");
+  }
+}
+
+chrome.runtime.onMessage.addListener(function (request) {
+  CHANGE_BUTTON_TEXT(request.translate);
+});
