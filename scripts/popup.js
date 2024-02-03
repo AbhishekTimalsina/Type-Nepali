@@ -9,30 +9,12 @@ chrome.storage.sync.get(["translateText"]).then((obj) => {
 btn.addEventListener("click", function () {
   let btnTxtContent = btn.textContent;
   if (btnTxtContent === "On") {
-    TOGGLE_TRANSLATE_VALUE(false);
+    chrome.runtime.sendMessage({toggle_value: false});
     btn.textContent = "Off";
     btn.classList.add("off");
   } else {
-    TOGGLE_TRANSLATE_VALUE(true);
+    chrome.runtime.sendMessage({toggle_value: true});
     btn.textContent = "On";
     btn.classList.remove("off");
   }
 });
-
-function TOGGLE_TRANSLATE_VALUE(boolean) {
-  chrome.storage.sync.set({
-    translateText: boolean,
-  });
-  chrome.tabs.query({}, function (tabs) {
-    tabs.forEach(async (tab) => {
-      // if the tab is a chrome url return
-      const pattern = /^chrome\:\/\/.*/;
-      if (pattern.test(tab.url)) return;
-      console.log(tab);
-
-      await chrome.tabs.sendMessage(tab.id, {
-        translate: boolean,
-      });
-    });
-  });
-}

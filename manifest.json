@@ -23,7 +23,7 @@
   ],
   "host_permissions": ["<all_urls>"],
   "commands":{
-    "Turn nepali typing on/off":{
+    "turn-nepali-typing-on/off":{
         "suggested_key": {"default": "Ctrl+O",
                             "mac":"MacCtrl+O"
     },
