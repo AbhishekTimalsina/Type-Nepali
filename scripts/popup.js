@@ -1,3 +1,11 @@
+// Connect to background.js to notify popup is open
+chrome.runtime.connect({name:"popup"});
+
+// Handle keyboard shortcuts when popup is open by simulating as if the user pressed the button
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.message == "button-press") BUTTON_PRESSED();
+});
+
 let btn = document.querySelector("button");
 chrome.storage.sync.get(["translateText"]).then((obj) => {
   btn.textContent = obj.translateText ? "On" : "Off";
@@ -6,33 +14,17 @@ chrome.storage.sync.get(["translateText"]).then((obj) => {
   }
 });
 
-btn.addEventListener("click", function () {
+btn.addEventListener("click", BUTTON_PRESSED);
+
+function BUTTON_PRESSED() {
   let btnTxtContent = btn.textContent;
   if (btnTxtContent === "On") {
-    TOGGLE_TRANSLATE_VALUE(false);
+    chrome.runtime.sendMessage({toggle_value: false, message: "toggle-value"});
     btn.textContent = "Off";
     btn.classList.add("off");
   } else {
-    TOGGLE_TRANSLATE_VALUE(true);
+    chrome.runtime.sendMessage({toggle_value: true, message: "toggle-value"});
     btn.textContent = "On";
     btn.classList.remove("off");
   }
-});
-
-function TOGGLE_TRANSLATE_VALUE(boolean) {
-  chrome.storage.sync.set({
-    translateText: boolean,
-  });
-  chrome.tabs.query({}, function (tabs) {
-    tabs.forEach(async (tab) => {
-      // if the tab is a chrome url return
-      const pattern = /^chrome\:\/\/.*/;
-      if (pattern.test(tab.url)) return;
-      console.log(tab);
-
-      await chrome.tabs.sendMessage(tab.id, {
-        translate: boolean,
-      });
-    });
-  });
 }

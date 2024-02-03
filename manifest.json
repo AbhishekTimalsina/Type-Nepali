@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Type Nepali",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Type in Nepali.",
   "icons": {
     "16": "img/icons/icon-16.png",
@@ -12,7 +12,8 @@
   "action": {
     "default_popup": "popup.html"
   },
-  "permissions": ["tabs", "storage", "activeTab"],
+  "permissions": ["tabs", "storage", "activeTab", "scripting"],
+  "background": {"service_worker": "scripts/background.js"},
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
@@ -20,6 +21,13 @@
       "run_at": "document_start"
     }
   ],
-
-  "host_permissions": ["<all_urls>"]
+  "host_permissions": ["<all_urls>"],
+  "commands":{
+    "turn-nepali-typing-on/off":{
+        "suggested_key": {"default": "Ctrl+O",
+                            "mac":"MacCtrl+O"
+    },
+        "description": "Turn Nepali typing on/off without opening the extension popup"
+    }
+  }
 }
