@@ -36,10 +36,21 @@ function TOGGLE_TRANSLATE_VALUE(boolean) {
             if (pattern.test(tab.url)) return;
             console.log(tab);
       
-            await chrome.tabs.sendMessage(tab.id, {
-              translate: boolean,
-            });
-          });
+                try {
+                        await chrome.tabs.sendMessage(tab.id, {
+                        translate: boolean,
+                        });}
+                
+                // content-script won't be loaded to currently open tabs when extension is loaded/reinstalled etc
+                // Inject content scripts in those tabs
+                catch(error) {
+                        chrome.scripting.executeScript({
+                                target: {tabId: tab.id, allFrames: true},
+                                // location relative to root folder(where manifest.json is)
+                                files: ['scripts/content.js'],
+                        });
+                        }
+                });
         });
       }
 
