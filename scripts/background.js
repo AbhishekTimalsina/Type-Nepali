@@ -1,17 +1,27 @@
+var POPUP_OPEN = false;
+
 // Check for keyboard shortcuts and change storage value if appropriate command
 chrome.commands.onCommand.addListener(
     (command)=> {
                 if (command == "turn-nepali-typing-on/off"){
-                        chrome.storage.sync.get(["translateText"]).then((result) => {
-                        let valueToSwitchTo = (result.translateText) ? false : true
-                        TOGGLE_TRANSLATE_VALUE(valueToSwitchTo);
-                });
+
+                        if (POPUP_OPEN){
+                        // if the popup is open while using the command, then reflect the changes in the popup
+                        // Simulate as if the user pressed the on/off button
+                                chrome.runtime.sendMessage({message: "button-press"});}
+                        else {
+                                chrome.storage.sync.get(["translateText"]).then((result) => {
+                                let valueToSwitchTo = (result.translateText) ? false : true
+                                TOGGLE_TRANSLATE_VALUE(valueToSwitchTo);
+                        });
+                }
         }
     }
 )
 
+// Handle messages from popup if user clicks the on/off button
 chrome.runtime.onMessage.addListener((message) => {
-        TOGGLE_TRANSLATE_VALUE(message.toggle_value)
+        if (message.message == "toggle-value") TOGGLE_TRANSLATE_VALUE(message.toggle_value);
 });
 
 function TOGGLE_TRANSLATE_VALUE(boolean) {
@@ -32,3 +42,17 @@ function TOGGLE_TRANSLATE_VALUE(boolean) {
           });
         });
       }
+
+// Keep track whether the popup is open or not
+chrome.runtime.onConnect.addListener(
+        (port)=>{
+            if (port.name == 'popup'){
+                // popup has been opened
+                POPUP_OPEN = true;
+                port.onDisconnect.addListener(()=>{
+                    POPUP_OPEN = false;
+                    // popup has been closed
+                })
+            }
+        }
+    )
