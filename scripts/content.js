@@ -4,11 +4,10 @@ let observer;
 // to resolve the promsie, this is to ensure that the mutation observer callback only runs after the isSpacePressed is set to true
 let promiseResolver = null;
 let currentTextfield = null;
-let disallowedKey = ["Enter", "Control"];
+
 
 async function TRANSLATION_HANDLER(e) {
-  console.log(e);
-  // if (disallowedKey.includes(e.key)) return;
+
   if (!(e.target.localName === "input" || e.target.localName === "textarea")) {
     HANDLE_TRANSLATION_FOR_OTHER_FIELDS(e);
     return;
