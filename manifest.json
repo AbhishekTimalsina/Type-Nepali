@@ -24,9 +24,9 @@
     }
   ],
   "commands": {
-    "inject-script": {
+    "Toggle-Translation": {
       "suggested_key": "Ctrl+Shift+Y",
-      "description": "Inject a script on the page"
+      "description": "Toggle the translation from On to Off or Off to On."
     }
   },
 
