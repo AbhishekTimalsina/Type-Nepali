@@ -92,7 +92,7 @@ async function TRANSLATE_FOR_OTHER(textfield) {
   lines[lines.length - 1] = lastLine;
   textfield.data = lines.join("\n") + " ";
   isSpacePressed = false;
-  MOVE_CARET_TO_END(textfield, textfield.length);
+  MOVE_CARET_TO_END(textfield);
 }
 
 // CALL THE API TO TRANSLATE WORD, RETURNS THE TRANSLATED WORD
@@ -120,11 +120,10 @@ function FIND_TEXT_NODE(node) {
 }
 
 // MOVES THE CURSOR POSITION TO END
-function MOVE_CARET_TO_END(elem, length) {
+function MOVE_CARET_TO_END(elem) {
   if (!elem) return;
   let selection = window.getSelection();
   let range = new Range();
-  // range.setStart(elem, elem.length);
   range.setStart(elem, elem.length);
   range.collapse();
 
